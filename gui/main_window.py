@@ -388,10 +388,11 @@ class MainWindow(QMainWindow):
         self.step_over_action.triggered.connect(self._handle_debug_step_over)
         debug_menu.addAction(self.step_over_action)
         
-        self.stop_debug_action = QAction("停止调试", self)
-        self.stop_debug_action.setEnabled(False)
-        self.stop_debug_action.triggered.connect(self._handle_debug_stop)
-        debug_menu.addAction(self.stop_debug_action)
+        # 注意：这里改名为debug_stop_action使其与其他地方引用一致
+        self.debug_stop_action = QAction("停止调试", self)
+        self.debug_stop_action.setEnabled(False)
+        self.debug_stop_action.triggered.connect(self._handle_debug_stop)
+        debug_menu.addAction(self.debug_stop_action)
         
         # 添加其他调试相关按钮
         self.debug_pause_action = QAction("暂停", self)
@@ -1841,18 +1842,33 @@ class MainWindow(QMainWindow):
     
     def _update_debug_menu_state(self, is_debugging: bool, is_paused: bool):
         """更新调试菜单项状态"""
-        self.debug_start_action.setEnabled(not is_debugging)
-        self.debug_start_step_action.setEnabled(not is_debugging)
-        self.debug_stop_action.setEnabled(is_debugging)
-        self.debug_pause_action.setEnabled(is_debugging and not is_paused)
-        self.debug_resume_action.setEnabled(is_debugging and is_paused)
-        self.debug_step_over_action.setEnabled(is_debugging and is_paused)
-        self.debug_step_into_action.setEnabled(is_debugging and is_paused)
-        self.debug_step_out_action.setEnabled(is_debugging and is_paused)
-        
-        # 同时更新调试面板状态（如果已经初始化）
-        if hasattr(self, 'debug_panel'):
-            self.debug_panel.update_ui_state(is_debugging, is_paused)
+        try:
+            # 使用安全的方式设置菜单项状态，避免属性错误
+            if hasattr(self, 'debug_start_action'):
+                self.debug_start_action.setEnabled(not is_debugging)
+            if hasattr(self, 'debug_start_step_action'):
+                self.debug_start_step_action.setEnabled(not is_debugging)
+            if hasattr(self, 'debug_stop_action'):
+                self.debug_stop_action.setEnabled(is_debugging)
+            if hasattr(self, 'debug_pause_action'):
+                self.debug_pause_action.setEnabled(is_debugging and not is_paused)
+            if hasattr(self, 'debug_resume_action'):
+                self.debug_resume_action.setEnabled(is_debugging and is_paused)
+            if hasattr(self, 'debug_step_over_action'):
+                self.debug_step_over_action.setEnabled(is_debugging and is_paused)
+            if hasattr(self, 'debug_step_into_action'):
+                self.debug_step_into_action.setEnabled(is_debugging and is_paused)
+            if hasattr(self, 'debug_step_out_action'):
+                self.debug_step_out_action.setEnabled(is_debugging and is_paused)
+            
+            # 同时更新调试面板状态（如果已经初始化）
+            if hasattr(self, 'debug_panel'):
+                self.debug_panel.update_ui_state(is_debugging, is_paused)
+        except Exception as e:
+            # 记录错误但不影响程序运行
+            self.log_display_widget.add_error(f"更新调试菜单状态时出错: {str(e)}")
+            import traceback
+            print(f"调试菜单状态更新错误: {traceback.format_exc()}")
     
     # 断点处理函数
     def _handle_breakpoint_toggled(self, step_index: int):

@@ -15,7 +15,13 @@
 
 ## 屏幕截图
 
-_此处建议添加应用截图_
+![image-20250518214107645](./README.assets/image-20250518214107645.png)
+
+![image-20250518214217970](./README.assets/image-20250518214217970.png)
+
+![image-20250518214347097](./README.assets/image-20250518214347097.png)
+
+![image-20250518214451427](./README.assets/image-20250518214451427.png)
 
 ## 安装与使用
 
