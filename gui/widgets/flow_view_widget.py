@@ -32,6 +32,29 @@ class FlowViewWidget(QTableWidget):
         self.setSelectionMode(QTableWidget.SingleSelection)
         self.setEditTriggers(QTableWidget.NoEditTriggers)  # Not directly editable
         
+        # 设置表格样式 - 适合暗色主题
+        self.setStyleSheet("""
+            QTableWidget {
+                background-color: #333333;
+                alternate-background-color: #3a3a3a;
+                color: #ffffff;
+                gridline-color: #555555;
+                selection-background-color: #555555;
+                selection-color: #ffffff;
+            }
+            QTableWidget::item {
+                padding: 5px;
+                border: none;
+            }
+            QHeaderView::section {
+                background-color: #444444;
+                color: #ffffff;
+                padding: 5px;
+                border: 1px solid #555555;
+            }
+        """)
+        self.setAlternatingRowColors(True)
+        
         # Enable context menu
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self._show_context_menu)
@@ -56,25 +79,36 @@ class FlowViewWidget(QTableWidget):
             
             # Step number
             number_item = QTableWidgetItem(str(row + 1))
+            number_item.setForeground(QColor("white"))  # 确保文本颜色是白色
             self.setItem(row, 0, number_item)
             
             # Action name
             action_name_item = QTableWidgetItem(self._get_display_name(action_id, parameters))
+            action_name_item.setForeground(QColor("white"))  # 确保文本颜色是白色
             self.setItem(row, 1, action_name_item)
             
             # Parameters summary
             params_summary = self._generate_params_summary(parameters)
             params_item = QTableWidgetItem(params_summary)
+            params_item.setForeground(QColor("white"))  # 确保文本颜色是白色
             self.setItem(row, 2, params_item)
             
             # Enabled status
             enabled_item = QTableWidgetItem("✓" if enabled else "")
             enabled_item.setTextAlignment(Qt.AlignCenter)
+            enabled_item.setForeground(QColor("white"))  # 确保文本颜色是白色
             self.setItem(row, 3, enabled_item)
             
             # Store full step data for reference
             # We'll store it in the user role of the first cell (number_item)
             number_item.setData(Qt.UserRole, step_data)
+            
+            # 根据启用状态设置不同的背景色
+            bg_color = QColor(53, 53, 53) if enabled else QColor(40, 40, 40)
+            for col in range(self.columnCount()):
+                item = self.item(row, col)
+                if item:
+                    item.setBackground(bg_color)
     
     def clear_view(self):
         """Clears all steps from the view."""
@@ -418,13 +452,17 @@ class FlowViewWidget(QTableWidget):
                 for col in range(self.columnCount()):
                     item = self.item(row, col)
                     if item:
-                        item.setBackground(QColor("white"))
+                        # 使用透明背景或深色背景，保证文字可见
+                        item.setBackground(QColor(53, 53, 53))  # 深灰色背景，与暗色主题匹配
+                        # 设置文本颜色为白色，确保在深色背景上可见
+                        item.setForeground(QColor("white"))
             
             # 高亮显示当前步骤
             for col in range(self.columnCount()):
                 item = self.item(step_index, col)
                 if item:
-                    item.setBackground(QColor("yellow"))
+                    item.setBackground(QColor(255, 204, 0))  # 醒目的黄色
+                    item.setForeground(QColor("black"))  # 黄色背景上使用黑色文本
             
             # 自动滚动到当前行
             self.scrollToItem(self.item(step_index, 0))
@@ -443,12 +481,18 @@ class FlowViewWidget(QTableWidget):
         # 确保索引有效
         if 0 <= step_index < self.rowCount():
             # 设置背景颜色表示执行结果
-            background_color = QColor("lightgreen") if success else QColor("lightcoral")
+            if success:
+                background_color = QColor(50, 205, 50)  # 深绿色
+                text_color = QColor("white")
+            else:
+                background_color = QColor(205, 50, 50)  # 深红色
+                text_color = QColor("white")
             
             for col in range(self.columnCount()):
                 item = self.item(step_index, col)
                 if item:
                     item.setBackground(background_color)
+                    item.setForeground(text_color)
     
     def get_selected_step_index(self):
         """
