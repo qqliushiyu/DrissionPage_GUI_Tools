@@ -1,0 +1,1 @@
+../../../../../../Resources/PyQt5/Qt5/qml/QtQuick/Controls/TabView.qml
