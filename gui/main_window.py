@@ -364,9 +364,19 @@ class MainWindow(QMainWindow):
         
         debug_menu.addSeparator()
         
-        self.debug_action = QAction("开始调试", self)
+        # 修复问题：添加缺失的debug_start_action
+        self.debug_start_action = QAction("开始调试", self)
+        self.debug_start_action.triggered.connect(lambda: self._handle_debug_start("normal"))
+        debug_menu.addAction(self.debug_start_action)
+        
+        self.debug_action = QAction("开始调试(兼容)", self)
         self.debug_action.triggered.connect(lambda: self._handle_debug_start("normal"))
         debug_menu.addAction(self.debug_action)
+        
+        # 添加单步调试按钮
+        self.debug_start_step_action = QAction("单步调试", self)
+        self.debug_start_step_action.triggered.connect(lambda: self._handle_debug_start("step"))
+        debug_menu.addAction(self.debug_start_step_action)
         
         self.continue_action = QAction("继续", self)
         self.continue_action.setEnabled(False)
@@ -382,6 +392,32 @@ class MainWindow(QMainWindow):
         self.stop_debug_action.setEnabled(False)
         self.stop_debug_action.triggered.connect(self._handle_debug_stop)
         debug_menu.addAction(self.stop_debug_action)
+        
+        # 添加其他调试相关按钮
+        self.debug_pause_action = QAction("暂停", self)
+        self.debug_pause_action.setEnabled(False)
+        self.debug_pause_action.triggered.connect(self._handle_debug_pause)
+        debug_menu.addAction(self.debug_pause_action)
+        
+        self.debug_resume_action = QAction("恢复", self)
+        self.debug_resume_action.setEnabled(False)
+        self.debug_resume_action.triggered.connect(self._handle_debug_resume)
+        debug_menu.addAction(self.debug_resume_action)
+        
+        self.debug_step_over_action = QAction("单步跳过", self)
+        self.debug_step_over_action.setEnabled(False)
+        self.debug_step_over_action.triggered.connect(self._handle_debug_step_over)
+        debug_menu.addAction(self.debug_step_over_action)
+        
+        self.debug_step_into_action = QAction("单步进入", self)
+        self.debug_step_into_action.setEnabled(False)
+        self.debug_step_into_action.triggered.connect(self._handle_debug_step_into)
+        debug_menu.addAction(self.debug_step_into_action)
+        
+        self.debug_step_out_action = QAction("单步跳出", self)
+        self.debug_step_out_action.setEnabled(False)
+        self.debug_step_out_action.triggered.connect(self._handle_debug_step_out)
+        debug_menu.addAction(self.debug_step_out_action)
         
         # 帮助菜单
         help_menu = self.menuBar().addMenu("帮助")
